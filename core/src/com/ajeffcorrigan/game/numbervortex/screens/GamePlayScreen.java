@@ -70,8 +70,8 @@ public class GamePlayScreen implements Screen {
         update(delta);
 
         //Clear the game screen
-        Gdx.gl.glClearColor(0f, 0f, 0f, 0);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        Gdx.gl.glClearColor( .80f, .80f, .85f, 0);
+        Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
 
         gamecam.update();
         //gb.drawBoard(shapeRender,gamecam);
@@ -85,7 +85,7 @@ public class GamePlayScreen implements Screen {
             if(gplay.getBaseTexture() == null) {
                 gplay.drawPieces(shapeRender,gamecam);
             } else {
-                gplay.drawPieces(this.game.batch);
+                //gplay.drawPieces(this.game.batch);
             }
         }
 

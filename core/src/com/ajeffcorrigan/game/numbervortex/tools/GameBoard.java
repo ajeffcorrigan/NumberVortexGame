@@ -2,26 +2,29 @@ package com.ajeffcorrigan.game.numbervortex.tools;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.IntArray;
 
 public class GameBoard {
 
+    //Array of GameCell objects.
     private Array<GameCell> gameCells;
+    //Starting location of the game board.
     private Vector2 startLoc;
+    //Current game level layout.
     private int[][] gameLevel;
+    //Texture of the empty game cells.
     private Texture cellTexture;
 
-    public GameBoard(Vector2 sl, int[][] gl) {
-        this.startLoc = sl;
-        this.gameLevel = gl;
-        generateGameBoard();
-    }
-
-    public GameBoard(Vector2 sl, int[][] gl,Texture gct) {
+    public GameBoard(Vector2 sl, int[][] gl, Texture gct) {
+        Gdx.app.debug(this.getClass().getSimpleName(),"Start location: "+ sl);
         this.startLoc = sl;
         this.gameLevel = gl;
         this.cellTexture = gct;
@@ -32,12 +35,11 @@ public class GameBoard {
         gameCells = new Array<GameCell>();
         for(int x = 0; x < gameLevel.length; x++) {
             for(int y = 0; y < gameLevel[x].length; y++) {
-                if(this.cellTexture != null) {
-                    gameCells.add(new GameCell(new Vector2(x, y), this.startLoc));
+                if(gameLevel[x][y] > 0) {
+                    gameCells.add(new GameCell(new Vector2(x, y), this.startLoc, true, this.cellTexture));
                 } else {
-                    gameCells.add(new GameCell(new Vector2(x, y), this.startLoc));
+                    gameCells.add(new GameCell(new Vector2(x, y), this.startLoc, false, this.cellTexture));
                 }
-                if(gameLevel[x][y] > 0) { gameCells.peek().setInPlay(true); }
             }
         }
     }
@@ -46,23 +48,33 @@ public class GameBoard {
         return gameCells;
     }
 
-    public void drawBoard(ShapeRenderer sr, Camera gameCam) {
-        sr.setProjectionMatrix(gameCam.combined);
-        sr.begin(ShapeRenderer.ShapeType.Line);
-        for(GameCell gc : gameCells) {
-            //Gdx.app.debug(this.getClass().getSimpleName(),"gCell x: " + gc.getCellLoc().x +" y:"+ gc.getCellLoc().y);
-            //gc.drawCircle(sr);
-            gc.drawInPlayBoard(sr);
-        }
-        sr.end();
-    }
-
+    //Draw the gameboard, both empty cells and filled in cells.
     public void drawBoard(SpriteBatch sb) {
+        float offset;
         sb.begin();
         for(GameCell gc : gameCells) {
-            if(gc.isInPlay) { sb.draw(this.cellTexture,gc.getgCellCircle().x-35,gc.getgCellCircle().y-35); }
+            if(gc.isInPlay()) {
+                sb.draw(gc.getCellTexture(),gc.getCellPosition().x,gc.getCellPosition().y);
+                if(gc.isOccupied()) {
+                    offset = (gc.getCellTexture().getWidth() - gc.getGamePiece().getBasePieceTexture().getWidth()) / 2;
+                    sb.draw(gc.getGamePiece().getBasePieceTexture(),gc.getCellPosition().x+offset,gc.getCellPosition().y+offset);
+                }
+            }
         }
         sb.end();
+    }
+
+    //Draw the cell bound gameboard.
+    public void drawBoundBoard(ShapeRenderer sr, Camera gamecam) {
+        sr.setProjectionMatrix(gamecam.combined);
+        sr.begin(ShapeRenderer.ShapeType.Line);
+        sr.setColor(Color.BLACK);
+        for (GameCell gc : this.gameCells) {
+            if (gc.isInPlay()) {
+                sr.circle(gc.getgCellCircle().x, gc.getgCellCircle().y, gc.getgCellCircle().radius);
+            }
+        }
+        sr.end();
     }
 
     //Get and set for start location variable; startLoc
@@ -78,21 +90,43 @@ public class GameBoard {
         this.generateGameBoard();
     }
 
-    public Array<GameCell> suckedIn(Vector2 empty) {
-        Array<GameCell> vals = new Array<GameCell>();
+    //Mark the game cells which are eliminated.
+    public void eliminateCells(Vector2 empty) {
         for(GameCell gc : gameCells) {
-            if(empty.x == gc.getCellLoc().x && empty.y == (gc.getCellLoc().y-1)) { vals.add(gc); }
-            if(empty.x == gc.getCellLoc().x && empty.y == (gc.getCellLoc().y+1)) { vals.add(gc); }
-            if(empty.x == (gc.getCellLoc().x - 1) && empty.y == gc.getCellLoc().y) { vals.add(gc);}
-            if(empty.x == (gc.getCellLoc().x + 1) && empty.y == gc.getCellLoc().y) { vals.add(gc);}
-            if(gc.getCellLoc().x%2 == 0) {
-                if(empty.x == (gc.getCellLoc().x - 1) && empty.y == gc.getCellLoc().y-1) { vals.add(gc);}
-                if(empty.x == (gc.getCellLoc().x + 1) && empty.y == gc.getCellLoc().y-1) { vals.add(gc);}
-            } else {
-                if(empty.x == (gc.getCellLoc().x - 1) && empty.y == gc.getCellLoc().y+1) { vals.add(gc);}
-                if(empty.x == (gc.getCellLoc().x + 1) && empty.y == gc.getCellLoc().y+1) { vals.add(gc);}
+            if(gc.isInPlay()) {
+                if(empty.x == gc.getCellLoc().x) {
+                    if(empty.y == (gc.getCellLoc().y-1) || empty.y == (gc.getCellLoc().y+1)) {
+                        gc.setSuckedIn(true);
+                        Gdx.app.debug(this.getClass().getSimpleName(),"Sucked in cell: "+ gc.getCellLoc());
+                        continue;
+                    }
+                } else if (empty.y == gc.getCellLoc().y) {
+                    if(empty.x == (gc.getCellLoc().x - 1) || empty.x == (gc.getCellLoc().x + 1)) {
+                        gc.setSuckedIn(true);
+                        Gdx.app.debug(this.getClass().getSimpleName(),"Sucked in cell: "+ gc.getCellLoc());
+                        continue;
+                    }
+                } else if ((gc.getCellLoc().x%2 == 0 && empty.y == gc.getCellLoc().y-1) || (gc.getCellLoc().x%2 != 0 && empty.y == gc.getCellLoc().y+1)) {
+                    if(empty.x == (gc.getCellLoc().x - 1) || empty.x == (gc.getCellLoc().x + 1)) {
+                        gc.setSuckedIn(true);
+                        Gdx.app.debug(this.getClass().getSimpleName(),"Sucked in cell: "+ gc.getCellLoc());
+                        continue;
+                    }
+                }
             }
         }
-        return vals;
+
     }
+
+    //Return the score for the specified player.
+    public int getScore(int playerNum) {
+        int playerScore = 0;
+        for(GameCell gc : gameCells) {
+            if(gc.isOccupied() && gc.isInPlay() && gc.getGamePiece().getOwnerOfPiece() == playerNum && !gc.isSuckedIn()) {
+                playerScore = playerScore + gc.getGamePiece().getPieceValue();
+            }
+        }
+        return playerScore;
+    }
+
 }

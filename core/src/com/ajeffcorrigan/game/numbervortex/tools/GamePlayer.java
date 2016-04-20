@@ -10,64 +10,61 @@ import com.badlogic.gdx.utils.Array;
 
 public class GamePlayer {
 
+    //Pieces to play for each player.
     private static final int piecesToPlay = 10;
-
+    //Array of GamePiece objects.
     private Array<GamePiece> gamePieces;
-    private Color pColor;
+    //Player color.
+    private Color playerColor;
+    //Player number.
     private int playerNum;
+    //Active game piece for interacting with
     private GamePiece activePiece;
+
     private int activeTurn = 0;
     private int score = 0;
     private int scoreSucked = 0;
-    private Texture baseTexture;
     private Array<Texture> numbers = new Array<Texture>(10);
 
     public GamePlayer(Vector2 startLoc,Color c,int pn) {
-        this.pColor = c;
+        this.playerColor = c;
         this.playerNum = pn;
         gamePieces = new Array<GamePiece>(piecesToPlay);
-        for(int x = 1; x <= piecesToPlay; x++) { gamePieces.add(new GamePiece(x,startLoc)); }
+        for(int x = 1; x <= piecesToPlay; x++) { gamePieces.add(new GamePiece(x,startLoc,pn,jAssets.getTexture(c))); }
     }
 
-    public GamePlayer(Vector2 startLoc,Texture baseText, int pn) {
-        this.playerNum = pn;
-        gamePieces = new Array<GamePiece>(piecesToPlay);
-        this.baseTexture = baseText;
-        for(int x = 1; x <= piecesToPlay; x++) { gamePieces.add(new GamePiece(x,startLoc)); }
-    }
+    //Get and set for player score.
+    public int getScore() { return score; }
+    public void setScore(int score) { this.score = score; }
 
+    //Get for player color.
+    public Color getPlayerColor() { return playerColor; }
+
+    //Get for player number.
+    public int getPlayerNum() { return playerNum; }
+
+    //Get Array of GamePieces
     public Array<GamePiece> getGamePieces() { return gamePieces; }
+
+    //Returns a specific GamePiece object from array
+    public GamePiece getGamePiece(int gp) { return gamePieces.get(gp); }
+
+    //Returns and removes the last GamePiece object from array
     public GamePiece popGamePiece() { return gamePieces.pop(); }
 
-    public void drawPieces(ShapeRenderer sr, Camera gameCam) {
-        sr.setProjectionMatrix(gameCam.combined);
-
-        if (anyActiveMoves()) {
-            sr.begin(ShapeRenderer.ShapeType.Filled);
-            sr.setColor(pColor);
-            sr.circle(activePiece.getgPieceCircle().x,activePiece.getgPieceCircle().y,activePiece.getgPieceCircle().radius);
-            sr.end();
-        }
-        sr.begin(ShapeRenderer.ShapeType.Line);
-        for(GamePiece gp : gamePieces) {
-            sr.setColor(pColor);
-            sr.circle(gp.getgPieceCircle().x,gp.getgPieceCircle().y,gp.getgPieceCircle().radius);
-        }
-        sr.end();
-    }
-
+    //Draw the players game pieces to screen
     public void drawPieces(SpriteBatch sb) {
         sb.begin();
         if (anyActiveMoves()) {
-            sb.draw(activePiece.getGamePieceGfx(),activePiece.getgPieceCircle().x,activePiece.getgPieceCircle().y);
+            sb.draw(activePiece.getBasePieceTexture(),activePiece.getGamePiecePosition().x,activePiece.getGamePiecePosition().y);
         }
         for(GamePiece gp : gamePieces) {
-            sb.draw(gp.getGamePieceGfx(),gp.getgPieceCircle().x,gp.getgPieceCircle().y);
+            sb.draw(gp.getBasePieceTexture(),gp.getGamePiecePosition().x,gp.getGamePiecePosition().y);
         }
         sb.end();
     }
 
-    public int getPlayerNum() { return playerNum; }
+
     public GamePiece getActivePiece() { return activePiece; }
     public void nextPiece() {
         activeTurn++;
@@ -84,44 +81,4 @@ public class GamePlayer {
             return false;
         }
     }
-
-    public int getScore() { return score; }
-    public void addScore(int score) { this.score = this.score + score; }
-
-    public int calcScore(Array<GameCell> bhs) {
-        boolean excludeAdd;
-        for(GamePiece gp : this.gamePieces) {
-            excludeAdd = false;
-            for(GameCell bh : bhs) {
-                if(gp.getpLocation() == bh.getCellLoc()) {
-                    excludeAdd = true;
-                    break;
-                }
-            }
-            if(!excludeAdd) { this.score = this.score + gp.getpValue(); }
-        }
-        return getScore();
-    }
-
-    public int getScoreSucked() { return scoreSucked; }
-    public int calcBlackHole(Array<GameCell> bhs) {
-        boolean excludeAdd;
-        for(GamePiece gp : this.gamePieces) {
-            excludeAdd = false;
-            for(GameCell bh : bhs) {
-                if(gp.getpLocation() == bh.getCellLoc()) {
-                    excludeAdd = true;
-                    break;
-                }
-            }
-            if(excludeAdd) { this.scoreSucked = this.scoreSucked + gp.getpValue(); }
-        }
-        return getScoreSucked();
-    }
-
-
-    public Texture getBaseTexture() {
-        return baseTexture;
-    }
-
 }

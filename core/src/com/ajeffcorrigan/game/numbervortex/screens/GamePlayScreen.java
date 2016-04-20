@@ -4,7 +4,9 @@ import com.ajeffcorrigan.game.numbervortex.NumberVortexGame;
 import com.ajeffcorrigan.game.numbervortex.tools.GameBoard;
 import com.ajeffcorrigan.game.numbervortex.tools.GameCell;
 import com.ajeffcorrigan.game.numbervortex.tools.GameLevels;
+import com.ajeffcorrigan.game.numbervortex.tools.GamePlayLogic;
 import com.ajeffcorrigan.game.numbervortex.tools.GamePlayer;
+import com.ajeffcorrigan.game.numbervortex.tools.jAssets;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -21,12 +23,20 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class GamePlayScreen implements Screen {
 
+    //Main game object.
     private NumberVortexGame game;
 
-    private GameBoard gb;
-    private GameLevels gls;
-    private Array<GamePlayer> gps = new Array<GamePlayer>();
+    //GameBoard object.
+    private GameBoard gameBoard;
+    //Array of GamePlayer objects.
+    private Array<GamePlayer> gamePlayers = new Array<GamePlayer>();
+    //Game level manager
+    private GameLevels gameLevels;
+    //Current active player GamePlayer object.
     private GamePlayer activePlayer;
+    //Game play logic
+    private GamePlayLogic gamePlayLogic;
+
     private Array<GameCell> blackHoleCells = new Array<GameCell>();
     private Vector2 blackHoleLocation;
 
@@ -45,18 +55,15 @@ public class GamePlayScreen implements Screen {
         gamecam.setToOrtho(false);
 
         //Gameplay objects
-        gls = new GameLevels();
-        //gb = new GameBoard(new Vector2(gamePort.getWorldWidth()*.08f,gamePort.getWorldHeight()*.82f),gls.getFirstLevel());
-        gb = new GameBoard(new Vector2(gamePort.getWorldWidth()*.08f,gamePort.getWorldHeight()*.82f),gls.getFirstLevel(),new Texture("cell.png"));
-        //gps.add(new GamePlayer(new Vector2(gamePort.getWorldWidth()*.78f,gamePort.getWorldHeight()*.42f),Color.GREEN,2));
-        gps.add(new GamePlayer(new Vector2(gamePort.getWorldWidth()*.78f,gamePort.getWorldHeight()*.42f),new Texture("chipGreen.png"),2));
-        gps.add(new GamePlayer(new Vector2(gamePort.getWorldWidth()*.08f,gamePort.getWorldHeight()*.42f), Color.BLUE,1));
+        gameLevels = new GameLevels();
+        gamePlayLogic = new GamePlayLogic();
+        gameBoard = new GameBoard(new Vector2(gamePort.getWorldWidth()*.03f,gamePort.getWorldHeight()*.87f),gameLevels.getFirstLevel(), jAssets.getTexture("cell"));
+        gamePlayers.add(new GamePlayer(new Vector2(gamePort.getWorldWidth()*.78f,gamePort.getWorldHeight()*.42f),Color.GREEN,2));
+        gamePlayers.add(new GamePlayer(new Vector2(gamePort.getWorldWidth()*.08f,gamePort.getWorldHeight()*.42f), Color.BLUE,1));
 
-
-        gps.first().nextPiece();
-        gps.peek().nextPiece();
-
-        activePlayer = gps.pop();
+        gamePlayers.first().nextPiece();
+        gamePlayers.peek().nextPiece();
+        activePlayer = gamePlayers.pop();
     }
 
     @Override
@@ -74,21 +81,13 @@ public class GamePlayScreen implements Screen {
         Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
 
         gamecam.update();
-        //gb.drawBoard(shapeRender,gamecam);
-        gb.drawBoard(this.game.batch);
-        if(activePlayer.getBaseTexture() == null) {
-            activePlayer.drawPieces(shapeRender,gamecam);
-        } else {
-            activePlayer.drawPieces(this.game.batch);
-        }
-        for (GamePlayer gplay : gps) {
-            if(gplay.getBaseTexture() == null) {
-                gplay.drawPieces(shapeRender,gamecam);
-            } else {
-                //gplay.drawPieces(this.game.batch);
-            }
-        }
+        //Draw the game board.
+        gameBoard.drawBoard(this.game.batch);
+        activePlayer.drawPieces(this.game.batch);
 
+        for (GamePlayer gplay : gamePlayers) {
+            gplay.drawPieces(this.game.batch);
+        }
     }
 
     private void update(float delta) {
@@ -97,43 +96,38 @@ public class GamePlayScreen implements Screen {
             if (Gdx.input.justTouched()) {
                 Vector3 touchPoint = new Vector3();
                 gamecam.unproject(touchPoint.set(Gdx.input.getX(), Gdx.input.getY(), 0));
-                for(GameCell gc : gb.getGameCells()) {
-                    if(gc.getgCellCircle().contains(touchPoint.x,touchPoint.y)) {
-                        if (gc.isInPlay && !gc.isOccupied()) {
-                            Gdx.app.debug(this.getClass().getSimpleName(), "Game Cell XY" + gc.getCellLoc());
-                            gc.setOccupied(true);
-                            activePlayer.getActivePiece().setInPlay(true);
-                            activePlayer.getActivePiece().setgPieceCircle(gc.gCellCircleVec());
-                            activePlayer.getActivePiece().setpLocation(gc.getCellLoc());
-                            activePlayer.getGamePieces().add(activePlayer.getActivePiece());
-                            activePlayer.nextPiece();
-                            gps.add(activePlayer);
-                            activePlayer = gps.first();
-                            gps.removeIndex(0);
-                        }
+                for(GameCell gc : gameBoard.getGameCells()) {
+                    if(gc.getgCellCircle().contains(touchPoint.x,touchPoint.y) && gc.isInPlay() && !gc.isOccupied()) {
+                        Gdx.app.debug(this.getClass().getSimpleName(), "Game Cell XY" + gc.getCellLoc());
+                        gc.setGamePiece(activePlayer.getActivePiece());
+                        activePlayer.nextPiece();
+                        gamePlayers.add(activePlayer);
+                        activePlayer = gamePlayers.first();
+                        gamePlayers.removeIndex(0);
                     }
                 }
             }
         } else {
-            gps.add(activePlayer);
-            for(GameCell gc : gb.getGameCells()) {
-                if(gc.isInPlay && !gc.isOccupied()) {
+            gamePlayers.add(activePlayer);
+            for(GameCell gc : gameBoard.getGameCells()) {
+                if(gc.isInPlay() && !gc.isOccupied()) {
                     Gdx.app.debug(this.getClass().getSimpleName(), "Empty cell: "+gc.getCellLoc());
                     blackHoleLocation = gc.getCellLoc();
                     break;
                 }
             }
-            blackHoleCells = gb.suckedIn(blackHoleLocation);
-            for(GameCell egc : blackHoleCells) {
-                Gdx.app.debug(this.getClass().getSimpleName(), "Sucked in cells:"+egc.getCellLoc());
+            gameBoard.eliminateCells(blackHoleLocation);
+            for(GamePlayer gp : gamePlayers) {
+                gp.setScore(gameBoard.getScore(gp.getPlayerNum()));
+                Gdx.app.debug(this.getClass().getSimpleName(), "Player: "+gp.getPlayerNum()+" Score: "+ gameBoard.getScore(gp.getPlayerNum()));
             }
-            for(GamePlayer gp : gps) {
-                Gdx.app.debug(this.getClass().getSimpleName(), "Player: "+gp.getPlayerNum()+" Score: "+gp.calcScore(blackHoleCells));
-                Gdx.app.debug(this.getClass().getSimpleName(), "Player: "+gp.getPlayerNum()+" Score Sucked: "+gp.calcBlackHole(blackHoleCells));
-
+            if(gamePlayLogic.getWinner(gamePlayers) == 99) {
+                Gdx.app.debug(this.getClass().getSimpleName(), "Game ends in a tie!");
+                Gdx.app.exit();
+            } else {
+                Gdx.app.debug(this.getClass().getSimpleName(), "Winner is player "+gamePlayLogic.getWinner(gamePlayers)+"!");
+                Gdx.app.exit();
             }
-            Gdx.app.debug(this.getClass().getSimpleName(), "Game Over!");
-            Gdx.app.exit();
         }
     }
 

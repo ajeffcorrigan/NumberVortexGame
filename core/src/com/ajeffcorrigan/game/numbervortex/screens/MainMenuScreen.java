@@ -2,12 +2,20 @@ package com.ajeffcorrigan.game.numbervortex.screens;
 
 import com.ajeffcorrigan.game.numbervortex.NumberVortexGame;
 import com.ajeffcorrigan.game.numbervortex.tools.ScreenObject;
+import com.ajeffcorrigan.game.numbervortex.tools.jAssets;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -24,6 +32,19 @@ public class MainMenuScreen implements Screen {
 
     public Array<ScreenObject> screenObjectArray;
 
+    private ScreenObject metalPlate;
+
+    private BitmapFont font;
+    private FreeTypeFontGenerator generator;
+    private FreeTypeFontGenerator.FreeTypeFontParameter parameter;
+
+    private Texture glass;
+    private Texture metal;
+
+    private Sprite metalPane;
+
+    ShaderProgram fontShader;
+
     public MainMenuScreen(NumberVortexGame game) {
         this.game = game;
 
@@ -36,9 +57,29 @@ public class MainMenuScreen implements Screen {
         screenObjectArray.add(new ScreenObject(new Texture("spacebackground.jpg"),new Vector2(0,0)));
         screenObjectArray.add(new ScreenObject(new Texture("pvpbutton.png"),new Vector2(gamePort.getWorldWidth()*.25f,gamePort.getWorldHeight()*.60f),0));
         screenObjectArray.add(new ScreenObject(new Texture("pvcbutton.png"),new Vector2(gamePort.getWorldWidth()*.25f,gamePort.getWorldHeight()*.50f),1));
+        screenObjectArray.add(new ScreenObject(jAssets.getTexture("glass"),new Vector2(gamePort.getWorldWidth()*.25f,gamePort.getWorldHeight()*.30f),1));
+
+        generator = new FreeTypeFontGenerator(Gdx.files.internal("kenpixel.ttf"));
+        parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 32;
+        font = generator.generateFont(parameter); // font size 12 pixels
+        metal = jAssets.getTexture("metalPanel");
+        metal.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+        metalPlate = new ScreenObject(jAssets.getTexture("metalPanel"),new Vector2(gamePort.getWorldWidth()*.05f,gamePort.getWorldHeight()*.05f));
+
+        metal.setFilter();
+        metalPane = new Sprite(metal);
+        metalPane.setSize(gamePort.getWorldWidth() - 10,gamePort.getWorldHeight() - 10);
+        metalPane.setOrigin(5,5);
+
+        glass = jAssets.getTexture("glass");
+        glass.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
+
+        //fontTexture = jAssets.getTexture("future_thin_32");
+        //fontTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        //font = new BitmapFont(Gdx.files.internal("ken_future_thin.fnt"), new TextureRegion(fontTexture), false);
 
         gamecam.setToOrtho(false);
-
     }
 
     @Override
@@ -53,9 +94,20 @@ public class MainMenuScreen implements Screen {
         //Clear the game screen
         Gdx.gl.glClearColor(0f, 0f, 0f, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
+        game.batch.setProjectionMatrix(gamecam.combined);
         game.batch.begin();
         for (ScreenObject so:screenObjectArray) { so.draw(game.batch); }
+        //metalPlate.setScale(3f);
+        //metalPlate.setOrigin(0,0);
+        //metalPlate.draw(game.batch);
+        //game.batch.setShader(fontShader);
+
+
+        metalPane.draw(game.batch);
+        game.batch.draw(glass,10,10);
+        font.setColor(Color.RED);
+        font.draw(game.batch, "Hello smooth world!", 10, 200);
+        //game.batch.setShader(null);
         game.batch.end();
     }
 

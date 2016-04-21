@@ -1,6 +1,7 @@
 package com.ajeffcorrigan.game.numbervortex;
 
 import com.ajeffcorrigan.game.numbervortex.screens.GamePlayScreen;
+import com.ajeffcorrigan.game.numbervortex.screens.MainMenuScreen;
 import com.ajeffcorrigan.game.numbervortex.tools.GameAssetManager;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Game;
@@ -28,8 +29,8 @@ public class NumberVortexGame extends Game {
 		batch = new SpriteBatch();
 		gameAssets = new GameAssetManager();
 
-		//setScreen(new MainMenuScreen(this));
-		setScreen(new GamePlayScreen(this));
+		setScreen(new MainMenuScreen(this));
+		//setScreen(new GamePlayScreen(this));
 	}
 
 	@Override

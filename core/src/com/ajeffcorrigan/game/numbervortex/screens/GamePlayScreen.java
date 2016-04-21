@@ -14,6 +14,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -36,6 +39,11 @@ public class GamePlayScreen implements Screen {
     private GamePlayer activePlayer;
     //Game play logic
     private GamePlayLogic gamePlayLogic;
+    //FreeTypeFont generator and parameter objects.
+    private FreeTypeFontGenerator generator;
+    private FreeTypeFontParameter parameter;
+    //Bitmap font object
+    private BitmapFont font;
 
     private Array<GameCell> blackHoleCells = new Array<GameCell>();
     private Vector2 blackHoleLocation;
@@ -60,6 +68,12 @@ public class GamePlayScreen implements Screen {
         gameBoard = new GameBoard(new Vector2(gamePort.getWorldWidth()*.03f,gamePort.getWorldHeight()*.87f),gameLevels.getFirstLevel(), jAssets.getTexture("cell"));
         gamePlayers.add(new GamePlayer(new Vector2(gamePort.getWorldWidth()*.78f,gamePort.getWorldHeight()*.42f),Color.GREEN,2));
         gamePlayers.add(new GamePlayer(new Vector2(gamePort.getWorldWidth()*.08f,gamePort.getWorldHeight()*.42f), Color.BLUE,1));
+
+        //Font objects
+        generator = new FreeTypeFontGenerator(Gdx.files.internal("kenpixel.ttf"));
+        parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 32;
+        font = generator.generateFont(parameter);
 
         gamePlayers.first().nextPiece();
         gamePlayers.peek().nextPiece();

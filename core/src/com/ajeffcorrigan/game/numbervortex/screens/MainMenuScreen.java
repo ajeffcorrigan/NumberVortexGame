@@ -67,9 +67,8 @@ public class MainMenuScreen implements Screen {
         metal.setFilter(TextureFilter.Linear, TextureFilter.Linear);
         metalPlate = new ScreenObject(jAssets.getTexture("metalPanel"),new Vector2(gamePort.getWorldWidth()*.05f,gamePort.getWorldHeight()*.05f));
 
-        metal.setFilter();
         metalPane = new Sprite(metal);
-        metalPane.setSize(gamePort.getWorldWidth() - 10,gamePort.getWorldHeight() - 10);
+        metalPane.setSize(gamePort.getWorldWidth() - 100,gamePort.getWorldHeight() - 150);
         metalPane.setOrigin(5,5);
 
         glass = jAssets.getTexture("glass");
@@ -96,6 +95,9 @@ public class MainMenuScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         game.batch.setProjectionMatrix(gamecam.combined);
         game.batch.begin();
+
+        //metalPane.draw(game.batch);
+
         for (ScreenObject so:screenObjectArray) { so.draw(game.batch); }
         //metalPlate.setScale(3f);
         //metalPlate.setOrigin(0,0);
@@ -103,8 +105,8 @@ public class MainMenuScreen implements Screen {
         //game.batch.setShader(fontShader);
 
 
-        metalPane.draw(game.batch);
-        game.batch.draw(glass,10,10);
+
+        game.batch.draw(glass,10,10,200,100);
         font.setColor(Color.RED);
         font.draw(game.batch, "Hello smooth world!", 10, 200);
         //game.batch.setShader(null);

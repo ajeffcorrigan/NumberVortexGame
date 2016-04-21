@@ -28,7 +28,6 @@ public class GamePlayScreen implements Screen {
 
     //Main game object.
     private NumberVortexGame game;
-
     //GameBoard object.
     private GameBoard gameBoard;
     //Array of GamePlayer objects.
@@ -72,7 +71,7 @@ public class GamePlayScreen implements Screen {
         //Font objects
         generator = new FreeTypeFontGenerator(Gdx.files.internal("kenpixel.ttf"));
         parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 32;
+        parameter.size = 18;
         font = generator.generateFont(parameter);
 
         gamePlayers.first().nextPiece();
@@ -96,11 +95,11 @@ public class GamePlayScreen implements Screen {
 
         gamecam.update();
         //Draw the game board.
-        gameBoard.drawBoard(this.game.batch);
-        activePlayer.drawPieces(this.game.batch);
+        gameBoard.drawBoard(this.game.batch,font);
+        activePlayer.drawPieces(this.game.batch,font);
 
         for (GamePlayer gplay : gamePlayers) {
-            gplay.drawPieces(this.game.batch);
+            gplay.drawPieces(this.game.batch,font);
         }
     }
 

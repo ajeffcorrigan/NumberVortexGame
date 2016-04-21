@@ -60,11 +60,13 @@ public class GameCell {
     //Get and set for game piece
     public GamePiece getGamePiece() { return gamePiece; }
     public void setGamePiece(GamePiece gamePiece) {
+        float offset;
         this.gamePiece = gamePiece;
+        offset = (cellTexture.getWidth() - this.gamePiece.getBasePieceTexture().getWidth()) / 2;
         this.isOccupied = true;
         this.gamePiece.setInPlay(true);
         this.gamePiece.setGamePieceGridLocation(cellLoc);
-        this.gamePiece.setPieceLocation(new Vector2(gCellCircle.x, gCellCircle.y));
+        this.gamePiece.setGamePiecePosition(new Vector2(cellPosition.x + offset, cellPosition.y + offset));
     }
 
     public void createBounds(Vector2 gbStart) {

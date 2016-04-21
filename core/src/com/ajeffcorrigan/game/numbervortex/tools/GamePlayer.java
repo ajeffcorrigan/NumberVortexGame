@@ -3,6 +3,7 @@ package com.ajeffcorrigan.game.numbervortex.tools;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -53,17 +54,18 @@ public class GamePlayer {
     public GamePiece popGamePiece() { return gamePieces.pop(); }
 
     //Draw the players game pieces to screen
-    public void drawPieces(SpriteBatch sb) {
+    public void drawPieces(SpriteBatch sb, BitmapFont fnt) {
         sb.begin();
         if (anyActiveMoves()) {
             sb.draw(activePiece.getBasePieceTexture(),activePiece.getGamePiecePosition().x,activePiece.getGamePiecePosition().y);
+            fnt.draw(sb,String.valueOf(activePiece.getPieceValue()),activePiece.getGamePiecePosition().x + (activePiece.getBasePieceTexture().getWidth()*.43f), activePiece.getGamePiecePosition().y + (activePiece.getBasePieceTexture().getHeight()*.61f));
         }
         for(GamePiece gp : gamePieces) {
             sb.draw(gp.getBasePieceTexture(),gp.getGamePiecePosition().x,gp.getGamePiecePosition().y);
+            fnt.draw(sb,String.valueOf(gp.getPieceValue()),gp.getGamePiecePosition().x + (gp.getBasePieceTexture().getWidth()*.43f), gp.getGamePiecePosition().y + (gp.getBasePieceTexture().getHeight()*.61f));
         }
         sb.end();
     }
-
 
     public GamePiece getActivePiece() { return activePiece; }
     public void nextPiece() {

@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -49,7 +50,7 @@ public class GameBoard {
     }
 
     //Draw the gameboard, both empty cells and filled in cells.
-    public void drawBoard(SpriteBatch sb) {
+    public void drawBoard(SpriteBatch sb, BitmapFont fnt) {
         float offset;
         sb.begin();
         for(GameCell gc : gameCells) {
@@ -57,7 +58,8 @@ public class GameBoard {
                 sb.draw(gc.getCellTexture(),gc.getCellPosition().x,gc.getCellPosition().y);
                 if(gc.isOccupied()) {
                     offset = (gc.getCellTexture().getWidth() - gc.getGamePiece().getBasePieceTexture().getWidth()) / 2;
-                    sb.draw(gc.getGamePiece().getBasePieceTexture(),gc.getCellPosition().x+offset,gc.getCellPosition().y+offset);
+                    sb.draw(gc.getGamePiece().getBasePieceTexture(),gc.getGamePiece().getGamePiecePosition().x,gc.getGamePiece().getGamePiecePosition().y);
+                    fnt.draw(sb,String.valueOf(gc.getGamePiece().getPieceValue()),gc.getGamePiece().getGamePiecePosition().x + (gc.getGamePiece().getBasePieceTexture().getWidth()*.43f), gc.getGamePiece().getGamePiecePosition().y + (gc.getGamePiece().getBasePieceTexture().getHeight()*.61f));
                 }
             }
         }

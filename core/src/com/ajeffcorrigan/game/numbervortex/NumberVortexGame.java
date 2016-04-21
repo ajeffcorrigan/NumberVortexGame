@@ -29,8 +29,8 @@ public class NumberVortexGame extends Game {
 		batch = new SpriteBatch();
 		gameAssets = new GameAssetManager();
 
-		setScreen(new MainMenuScreen(this));
-		//setScreen(new GamePlayScreen(this));
+		//setScreen(new MainMenuScreen(this));
+		setScreen(new GamePlayScreen(this));
 	}
 
 	@Override

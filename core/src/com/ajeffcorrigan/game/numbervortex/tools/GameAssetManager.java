@@ -7,13 +7,14 @@ import com.badlogic.gdx.graphics.Color;
  */
 public class GameAssetManager {
     public GameAssetManager() {
-        jAssets.loadTextureAs("cell","cell.png");
+        jAssets.loadTextureAs("cell.png");
+        jAssets.loadTextureAs("spacebackground.jpg");
+
 
         jAssets.loadTextureAs(Color.BLUE,"bluePiece.png");
         jAssets.loadTextureAs(Color.GREEN,"greenPiece.png");
 
-        jAssets.loadTextureAs("glass","glassPanel.png");
-        jAssets.loadTextureAs("metalPanel","metalPanel.png");
+
 
     }
 }

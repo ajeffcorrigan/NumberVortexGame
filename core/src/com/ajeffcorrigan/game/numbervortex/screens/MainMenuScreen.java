@@ -54,29 +54,14 @@ public class MainMenuScreen implements Screen {
         gamecam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
 
         screenObjectArray = new Array<ScreenObject>();
-        screenObjectArray.add(new ScreenObject(new Texture("spacebackground.jpg"),new Vector2(0,0)));
+        screenObjectArray.add(new ScreenObject(jAssets.getTexture("spacebackground"),new Vector2(0,0)));
         screenObjectArray.add(new ScreenObject(new Texture("pvpbutton.png"),new Vector2(gamePort.getWorldWidth()*.25f,gamePort.getWorldHeight()*.60f),0));
         screenObjectArray.add(new ScreenObject(new Texture("pvcbutton.png"),new Vector2(gamePort.getWorldWidth()*.25f,gamePort.getWorldHeight()*.50f),1));
-        screenObjectArray.add(new ScreenObject(jAssets.getTexture("glass"),new Vector2(gamePort.getWorldWidth()*.25f,gamePort.getWorldHeight()*.30f),1));
 
-        generator = new FreeTypeFontGenerator(Gdx.files.internal("kenpixel.ttf"));
+        generator = new FreeTypeFontGenerator(Gdx.files.internal("kenvector_future_thin.ttf"));
         parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 32;
-        font = generator.generateFont(parameter); // font size 12 pixels
-        metal = jAssets.getTexture("metalPanel");
-        metal.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-        metalPlate = new ScreenObject(jAssets.getTexture("metalPanel"),new Vector2(gamePort.getWorldWidth()*.05f,gamePort.getWorldHeight()*.05f));
-
-        metalPane = new Sprite(metal);
-        metalPane.setSize(gamePort.getWorldWidth() - 100,gamePort.getWorldHeight() - 150);
-        metalPane.setOrigin(5,5);
-
-        glass = jAssets.getTexture("glass");
-        glass.setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
-
-        //fontTexture = jAssets.getTexture("future_thin_32");
-        //fontTexture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        //font = new BitmapFont(Gdx.files.internal("ken_future_thin.fnt"), new TextureRegion(fontTexture), false);
+        font = generator.generateFont(parameter);
 
         gamecam.setToOrtho(false);
     }
@@ -91,25 +76,16 @@ public class MainMenuScreen implements Screen {
         update(delta);
 
         //Clear the game screen
-        Gdx.gl.glClearColor(0f, 0f, 0f, 0);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        Gdx.gl.glClearColor( .80f, .80f, .85f, 0);
+        Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
+
         game.batch.setProjectionMatrix(gamecam.combined);
         game.batch.begin();
 
-        //metalPane.draw(game.batch);
-
         for (ScreenObject so:screenObjectArray) { so.draw(game.batch); }
-        //metalPlate.setScale(3f);
-        //metalPlate.setOrigin(0,0);
-        //metalPlate.draw(game.batch);
-        //game.batch.setShader(fontShader);
 
-
-
-        game.batch.draw(glass,10,10,200,100);
-        font.setColor(Color.RED);
-        font.draw(game.batch, "Hello smooth world!", 10, 200);
-        //game.batch.setShader(null);
+        font.setColor(Color.ROYAL);
+        font.draw(game.batch, "Number Vortex", gamePort.getWorldWidth() / 3,gamePort.getWorldHeight()*.90f);
         game.batch.end();
     }
 

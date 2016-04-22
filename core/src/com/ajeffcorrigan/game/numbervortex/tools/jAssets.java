@@ -99,6 +99,22 @@ public class jAssets {
         colorTextures.put(key, texture);
     }
     /**
+     * Load a texture into the AssetManager.
+     * @param file
+     */
+    public static void loadTextureAs(String file){
+        int loc = file.lastIndexOf(".");
+        String key;
+        if(loc > 0) {
+            key = file.substring(0,loc);
+        } else {
+            key = file;
+        }
+        try { if (colorTextures.get(key)!= null) { throw new Exception("Texture for key " + key + " already exists!"); } } catch (Exception e) { e.printStackTrace(); }
+        Texture texture = new Texture(file);
+        textures.put(key, texture);
+    }
+    /**
      * Returns the texture object for use in the application.
      * @param key
      * @return

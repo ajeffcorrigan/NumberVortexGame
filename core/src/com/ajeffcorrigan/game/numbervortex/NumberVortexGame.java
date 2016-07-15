@@ -1,6 +1,5 @@
 package com.ajeffcorrigan.game.numbervortex;
 
-import com.ajeffcorrigan.game.numbervortex.screens.GamePlayScreen;
 import com.ajeffcorrigan.game.numbervortex.screens.MainMenuScreen;
 import com.ajeffcorrigan.game.numbervortex.tools.GameAssetManager;
 import com.badlogic.gdx.ApplicationAdapter;
@@ -14,7 +13,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class NumberVortexGame extends Game {
 	public static int gw;
 	public static int gh;
-	public static final boolean DEBUGON = true;
+	public static final boolean DEBUGON = false;
 	public SpriteBatch batch;
 	public AssetManager manager = new AssetManager();
 	public GameAssetManager gameAssets;

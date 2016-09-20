@@ -9,7 +9,7 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.width = 480;
 		config.height = 800;
-		config.title = "Number Vortext";
+		config.title = "Number Vortex";
 		new LwjglApplication(new NumberVortexGame(), config);
 	}
 }
